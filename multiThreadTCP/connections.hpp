@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string> 
 #include <sys/socket.h>
+#include <pthread.h>
 
 class Connection{
     public: 
@@ -11,11 +12,13 @@ class Connection{
         ~Connection(); 
 
         bool Accept(int listeningSocket);
-        void Send(const std::string msg); 
+        void Send(const std::string msg);
+        void MonitorThreadProc(); 
     private: 
         int connSocket;
         sockaddr clientAddr;
-        socklen_t clientAddrSize; 
+        socklen_t clientAddrSize;
+        pthread_t monitorThread; 
         
 };
 

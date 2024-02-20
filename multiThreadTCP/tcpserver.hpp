@@ -15,11 +15,12 @@ class TCPserver{
 
         void Listen(int port,std::function<void(const std::string&)> callBack);
         void ListenThreadProc();
-        void Stop(); 
+        void Stop();
+        void MessageRecieved(Connection* src, const std::string& msg);
 
     private:
         int listeningPort;
-        int socketId{};
+        int socketId;
         struct sockaddr_in serverAddr; 
         volatile bool isListening;
         pthread_t listenerThread;

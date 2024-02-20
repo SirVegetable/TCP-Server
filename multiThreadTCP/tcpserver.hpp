@@ -5,6 +5,8 @@
 #include <vector>
 #include <functional> 
 #include <pthread.h>
+#include <arpa/inet.h>
+
 
 class TCPserver{
     public: 
@@ -12,13 +14,16 @@ class TCPserver{
         ~TCPserver();
 
         void Listen(int port,std::function<void(const std::string&)> callBack);
-        void ListenThreadProc(int port, std::function<void(const std::string&)> callback);  
-        void Stop();  
+        void ListenThreadProc();
+        void Stop(); 
 
     private:
         int listeningPort;
-        bool isListening;
-        pthread_t listenerThread; 
+        int socketId{};
+        struct sockaddr_in serverAddr; 
+        volatile bool isListening;
+        pthread_t listenerThread;
+        pthread_mutex_t mutex; 
         std::function<void(const std::string&)> callBack; 
         std::vector<Connection*> clientQueue; 
 

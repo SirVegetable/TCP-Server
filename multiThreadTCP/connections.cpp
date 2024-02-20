@@ -1,10 +1,15 @@
 #include "connections.hpp"
+#include "tcpserver.hpp"
 #include <arpa/inet.h>
 #include <pthread.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <unistd.h>
 
-Connection::Connection()
-{
-
+Connection::Connection(TCPserver* server)
+{   
+    this->server = server; 
+    isConnected = false;
 }
 
 Connection::~Connection()
@@ -41,9 +46,24 @@ bool Connection::Accept(int listeningSocket){
 }
 
 void Connection::MonitorThreadProc(){
+    const int bufferSize = 2048;
+    char buffer[bufferSize + 1];
+    int n;
+    isConnected = true;
+    while(isConnected){
+        n = read(connSocket, &buffer, bufferSize);
+        if( n < 0){
+            break;
+            std::string msg(buffer, n);
+            server->MessageRecieved(this, msg); 
+        }
+        close(connSocket); 
+        isConnected = false; 
+    }
+
 
 }
 
 void Connection::Send(const std::string msg){
-    
+
 }

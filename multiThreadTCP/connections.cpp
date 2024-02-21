@@ -35,6 +35,7 @@ void* Connection_monitorThreadProc(void* param){
 bool Connection::Accept(int listeningSocket){
     clientAddrSize = sizeof(clientAddr); 
     connSocket = accept(listeningSocket,&clientAddr, &clientAddrSize);
+    std::cout << "hdurr\n"; 
     if(connSocket < 0){
         return false; 
     }
@@ -52,16 +53,17 @@ void Connection::MonitorThreadProc(){
     char buffer[bufferSize + 1];
     int n;
     isConnected = true;
-    while(isConnected){
+    while(true){
         n = read(connSocket, &buffer, bufferSize);
-        if( n < 0){
+        if( n <= 0){
             break;
-            std::string msg(buffer, n);
-            server->MessageRecieved(this, msg); 
         }
-        close(connSocket); 
-        isConnected = false; 
+        std::string msg(buffer, n);
+        server->MessageRecieved(this, msg); 
+        
     }
+    close(connSocket); 
+    isConnected = false; 
 }
 
 void Connection::Send(const std::string msg){
@@ -72,6 +74,5 @@ void Connection::Send(const std::string msg){
     if(check < msg.size()){
         throw "Error sending message";
     }
-    return; 
 }
 

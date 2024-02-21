@@ -6,6 +6,8 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+
+
 Connection::Connection(TCPserver* server)
 {   
     this->server = server; 
@@ -23,7 +25,7 @@ void* Connection_monitorThreadProc(void* param){
         clientC->MonitorThreadProc(); 
     }
     catch(...){
-        std::cerr << "Error in MonitorThreadProc"<< std::endl; 
+        std::cerr << "Error in MonitorThreadProc "<< std::endl; 
     }
     delete clientC;
 
@@ -60,10 +62,16 @@ void Connection::MonitorThreadProc(){
         close(connSocket); 
         isConnected = false; 
     }
-
-
 }
 
 void Connection::Send(const std::string msg){
-
+    if(!isConnected){
+        throw "Sending on unconnected socket"; 
+    }
+    size_t check = write(connSocket,&msg[0], msg.size());
+    if(check < msg.size()){
+        throw "Error sending message";
+    }
+    return; 
 }
+

@@ -1,12 +1,13 @@
 #ifndef CONNECTIONS_HPP
 #define CONNECTIONS_HPP
 
-#include "tcpserver.hpp"
 #include <iostream>
 #include <string> 
 #include <sys/socket.h>
 #include <pthread.h>
 
+//forward declare TCPserver class
+class TCPserver; 
 class Connection{
     public:
         Connection()=default; 

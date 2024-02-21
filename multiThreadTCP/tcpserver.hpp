@@ -13,11 +13,11 @@ class TCPserver{
         TCPserver(); 
         ~TCPserver();
 
-        void Listen(int port,std::function<void(const std::string&)> callBack);
+        void Listen(int port,std::function<void(TCPserver* srv,Connection* src,const std::string&)> callBack);
         void ListenThreadProc();
         void Stop();
         void MessageRecieved(Connection* src, const std::string& msg);
-
+        void SendResponse(Connection* dst, const std::string& msg); 
     private:
         int listeningPort;
         int socketId;
@@ -25,7 +25,7 @@ class TCPserver{
         volatile bool isListening;
         pthread_t listenerThread;
         pthread_mutex_t mutex; 
-        std::function<void(const std::string&)> callBack; 
+        std::function<void(TCPserver* srv,Connection* src,const std::string&)> callBack; 
         std::vector<Connection*> clientQueue; 
 
 }; 

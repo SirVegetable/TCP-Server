@@ -27,7 +27,6 @@ void* Connection_monitorThreadProc(void* param){
     catch(...){
         std::cerr << "Error in MonitorThreadProc "<< std::endl; 
     }
-    delete clientC;
 
     return nullptr; 
 }
@@ -35,7 +34,6 @@ void* Connection_monitorThreadProc(void* param){
 bool Connection::Accept(int listeningSocket){
     clientAddrSize = sizeof(clientAddr); 
     connSocket = accept(listeningSocket,&clientAddr, &clientAddrSize);
-    std::cout << "hdurr\n"; 
     if(connSocket < 0){
         return false; 
     }

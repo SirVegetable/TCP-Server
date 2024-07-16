@@ -7,7 +7,7 @@
 
 
 
-ThreadPool::ThreadPool(std::size_t thread_count = std::thread::hardware_concurrency())
+ThreadPool::ThreadPool(std::size_t thread_count )
 {   
     if(!thread_count)
     {
@@ -27,7 +27,11 @@ ThreadPool::ThreadPool(std::size_t thread_count = std::thread::hardware_concurre
                     work = std::move(_queue.front()); 
                     _queue.pop(); 
                 }
-                
+                if(!work)
+                {
+                    break; 
+                }
+
                 (*work)(); 
             }
             
@@ -39,7 +43,7 @@ ThreadPool::ThreadPool(std::size_t thread_count = std::thread::hardware_concurre
 ThreadPool::~ThreadPool()
 {
     {
-        std::unique_lock guard(_queue_lock); 
+        std::unique_lock<std::mutex> guard(_queue_lock); 
         _queue.push(work_item_ptr{nullptr});
         _condition.notify_one(); 
     }
@@ -53,11 +57,17 @@ void ThreadPool::start_work(work_item w_item)
 {
     auto item = std::make_unique<work_item>(std::move(w_item)); 
     {
-        std::unique_lock guard(_queue_lock); 
+        std::unique_lock<std::mutex> guard(_queue_lock); 
         _queue.push(std::move(item));
         _check = true;
     }
     _condition.notify_one(); 
 
+}
+void ThreadPool::ThreadPool::stop()
+{   
+    std::unique_lock<std::mutex> guard(_queue_lock); 
+    _queue.push(); 
+    _check = true; 
 }
 

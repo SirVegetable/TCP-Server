@@ -7,7 +7,7 @@
 
 class ThreadPool{
     public:
-        ThreadPool(std::size_t thread_count = std::thread::hardware_concurrency()); 
+        explicit ThreadPool(std::size_t thread_count =  std::thread::hardware_concurrency()); 
         ThreadPool(const ThreadPool&) = delete;
         ThreadPool(ThreadPool&&) = delete;
         ThreadPool& operator=(const ThreadPool&) = delete; 
@@ -18,7 +18,7 @@ class ThreadPool{
         using work_item = std::function<void(void)> ;
 
         void start_work(work_item w_item); 
-        
+        void stop(); 
     private:
         using work_item_ptr = std::unique_ptr<work_item>; 
         using work_queue = std::queue<work_item_ptr>; 

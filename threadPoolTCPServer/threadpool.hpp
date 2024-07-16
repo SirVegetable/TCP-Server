@@ -27,7 +27,8 @@ class ThreadPool{
         std::mutex _queue_lock; 
         std::condition_variable _condition; 
         bool _check = false; 
-        Pool _pool; 
+        Pool _pool;
+        bool stopped = false; 
 
 
 }; 

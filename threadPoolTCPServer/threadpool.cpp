@@ -25,10 +25,12 @@ ThreadPool::ThreadPool(std::size_t thread_count )
                     _condition.wait(guard,[this](){ return _check;});
                     _check = false;
                     work = std::move(_queue.front()); 
-                    _queue.pop(); 
+                    _queue.pop();
+                    
                 }
                 if(!work)
                 {
+                    stop(); 
                     break; 
                 }
 
@@ -42,15 +44,7 @@ ThreadPool::ThreadPool(std::size_t thread_count )
 
 ThreadPool::~ThreadPool()
 {
-    {
-        std::unique_lock<std::mutex> guard(_queue_lock); 
-        _queue.push(work_item_ptr{nullptr});
-        _condition.notify_one(); 
-    }
-    for(auto& t: _pool)
-    {
-        t.join(); 
-    }
+   stop(); 
 }
 
 void ThreadPool::start_work(work_item w_item)
@@ -65,9 +59,18 @@ void ThreadPool::start_work(work_item w_item)
 
 }
 void ThreadPool::ThreadPool::stop()
-{   
-    std::unique_lock<std::mutex> guard(_queue_lock); 
-    _queue.push(); 
-    _check = true; 
+{
+    {
+        std::unique_lock<std::mutex> guard(_queue_lock);
+        if(stopped) return; 
+        _queue.push(work_item_ptr{nullptr}); 
+        _check = true;
+        stopped = true; 
+        _condition.notify_one(); 
+    }
+    for(auto& i: _pool)
+    {
+        i.join(); 
+    }
 }
 

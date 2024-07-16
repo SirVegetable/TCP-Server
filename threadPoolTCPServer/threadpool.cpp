@@ -7,7 +7,7 @@
 
 
 
-ThreadPool::ThreadPool(std::size_t thread_count)
+ThreadPool::ThreadPool(std::size_t thread_count = std::thread::hardware_concurrency())
 {   
     if(!thread_count)
     {
@@ -17,9 +17,21 @@ ThreadPool::ThreadPool(std::size_t thread_count)
     {
         _pool.push_back(std::thread([this]()
         {
-            std::cout << "thread: " << std::this_thread::get_id() << " begins... "<< std::endl; 
-            using namespace std::chrono_literals; 
-            std::this_thread::sleep_for(1s); 
+            while(true)
+            {
+                work_item_ptr work{nullptr}; 
+                {
+                    std::unique_lock guard(_queue_lock); 
+                    _condition.wait(guard,[this](){ return _check;});
+                    _check = false;
+                    work = std::move(_queue.front()); 
+                    _queue.pop(); 
+                }
+                
+                (*work)(); 
+            }
+            
+
         })); 
     }
 }
